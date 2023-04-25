@@ -1,0 +1,27 @@
+---
+title: "Data Cleaning"
+format: html
+editor: visual
+---
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(stringr)
+
+carEmissions <- read_csv("carEmissions.csv", na = "-")
+carEmissions <- replace(carEmissions, is.na(carEmissions), 0)
+```
+
+Now that I have uploaded the data, I need to filter out the aggregate values, i.e., the values for manufacturer, class, and vehicle type that begin with all.
+
+```{r}
+carEmissions <- carEmissions[which(!startsWith(carEmissions$Manufacturer, 'All')), ] 
+carEmissions <- carEmissions[which(!startsWith(carEmissions$`Regulatory Class`, 'All')), ]
+carEmissions <- carEmissions[which(!startsWith(carEmissions$`Vehicle Type`, 'All')), ]
+
+
+```
+
+```{r}
+write.csv(carEmissions, file = "carEmissions.csv")
+```
