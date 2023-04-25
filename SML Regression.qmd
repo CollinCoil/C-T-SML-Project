@@ -1,0 +1,25 @@
+---
+title: "SML Regression"
+author: "Collin"
+format: html
+editor: visual
+---
+
+```{r, output=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(MASS)
+library(boot)
+library(bootstrap)
+```
+
+# Ridge Regression
+
+Stuff about Ridge Regression
+
+<br>
+
+# Bootstrap
+
+Stuff about bootstrap
+
+<br>
