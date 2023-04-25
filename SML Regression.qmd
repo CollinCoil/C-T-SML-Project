@@ -8,18 +8,45 @@ editor: visual
 ```{r, output=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(MASS)
-library(boot)
-library(bootstrap)
+library(car)
+library(glmnet)
 ```
 
-# Ridge Regression
+# Lasso Regression
 
-Stuff about Ridge Regression
+Stuff about Lasso Regression
+
+```{r}
+# Setup
+reg <- lm(`Real-World CO2 (g/mi)` ~ . - `Production (000)` - `Production Share` - `Real-World CO2 (g/mi)` - `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` - `HP/Engine Displacement` - `HP/Weight (lbs)` - `Ton-MPG (Real-World)` - `Average Number of Gears`, data = carEmissions) 
+x <- model.matrix(reg)
+y <- carEmissions$`Real-World CO2 (g/mi)`
+
+# Lasso Regression
+set.seed(123)
+lr_cv <- cv.glmnet(x, y)
+plot(lr_cv)
+coef(lr_cv)
+
+```
 
 <br>
 
 # Bootstrap
 
 Stuff about bootstrap
+
+```{r}
+set.seed(123)
+model_bootstrap <- lm(formula = `Real-World CO2 (g/mi)` ~ . - `Production (000)` -                       `Production Share` - `Real-World CO2 (g/mi)` - 
+                      `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` -
+                      `HP/Engine Displacement` - `HP/Weight (lbs)` - 
+                      `Ton-MPG (Real-World)` - `Average Number of Gears`, 
+                      data = carEmissions)
+
+bootstrap_results <- Boot(model_bootstrap, R = 999999, ncores = 6)
+summary(bootstrap_results)
+
+```
 
 <br>

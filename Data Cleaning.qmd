@@ -8,7 +8,7 @@ editor: visual
 library(tidyverse)
 library(stringr)
 
-carEmissions <- read_csv("carEmissions.csv", na = "-")
+carEmissions <- read_csv("table_export.csv", na = "-")
 carEmissions <- replace(carEmissions, is.na(carEmissions), 0)
 ```
 
