@@ -3,6 +3,8 @@ title: "SML Regression"
 author: "Collin"
 format: html
 editor: visual
+execute:
+  cache: true
 ---
 
 ```{r, output=FALSE, message=FALSE, warning=FALSE}
@@ -10,7 +12,31 @@ library(tidyverse)
 library(MASS)
 library(car)
 library(glmnet)
-library(insurancerating)
+library(pls)
+```
+
+# Setup
+
+```{r}
+
+carEmissions <- read_csv("carEmissions.csv")
+
+# Split data
+set.seed(123)
+training_pct <- 0.75
+Z <- sample(nrow(carEmissions), training_pct*nrow(carEmissions))
+
+# Create training design matrix
+emissions_train <- carEmissions[Z,]
+reg_train <- lm(`Real-World CO2 (g/mi)` ~ . - `Production (000)` - `Production Share` - `Real-World CO2 (g/mi)` - `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` - `HP/Engine Displacement` - `HP/Weight (lbs)` - `Ton-MPG (Real-World)` - `Average Number of Gears`, data = emissions_train)
+x_train <- model.matrix(reg_train)[,-1]
+y_train <- emissions_train$`Real-World CO2 (g/mi)`
+
+# create test design matrix and vector
+emissions_test <- carEmissions[-Z,]
+reg_test <- lm(`Real-World CO2 (g/mi)` ~ . - `Production (000)` - `Production Share` - `Real-World CO2 (g/mi)` - `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` - `HP/Engine Displacement` - `HP/Weight (lbs)` - `Ton-MPG (Real-World)` - `Average Number of Gears`, data = emissions_test) 
+x_test <- model.matrix(reg_test)[,-1]
+y_test <- emissions_test$`Real-World CO2 (g/mi)`
 ```
 
 # Lasso Regression
@@ -18,19 +44,22 @@ library(insurancerating)
 Stuff about Lasso Regression
 
 ```{r}
-# Setup
-reg <- lm(`Real-World CO2 (g/mi)` ~ . - `Production (000)` - `Production Share` - `Real-World CO2 (g/mi)` - `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` - `HP/Engine Displacement` - `HP/Weight (lbs)` - `Ton-MPG (Real-World)` - `Average Number of Gears`, data = carEmissions) 
-x <- model.matrix(reg)
-y <- carEmissions$`Real-World CO2 (g/mi)`
-
 # Lasso Regression
 set.seed(123)
-lr_cv <- cv.glmnet(x, y)
-plot(lr_cv)
-coef(lr_cv)
-lr_cv
+train_lr_cv <- cv.glmnet(x_train, y_train, alpha = 1)
+train_lr_cv
+# Plots the results of the cross validation on the training data
+plot(train_lr_cv)
+# Estimating the prediction MSE for Lasso Regression
+pred_test_lr <- bind_cols(predict(train_lr_cv, newx = x_test, s = "lambda.1se"),
+                      predict(train_lr_cv, newx = x_test, s = "lambda.min"))
+pred_test_lr |> head()
+
+round(colMeans((pred_test_lr - y_test)^2), digits = 2)
 
 ```
+
+Lasso has an MSEP of 475.44.
 
 <br>
 
@@ -44,12 +73,38 @@ model_bootstrap <- lm(formula = `Real-World CO2 (g/mi)` ~ . - `Production (000)`
                       `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` -
                       `HP/Engine Displacement` - `HP/Weight (lbs)` - 
                       `Ton-MPG (Real-World)` - `Average Number of Gears`, 
-                      data = carEmissions)
+                      data = emissions_train)
 
-bootstrap_results <- Boot(model_bootstrap, R = 999, ncores = 6)
-summary(bootstrap_results)
+bootstrap_results <- Boot(model_bootstrap, R = 99999, ncores = 5)
+
 
 
 ```
 
+```{r}
+# Predictions
+x_test <- model.matrix(reg_test)
+emissions_predictions <- x_test[,-65] %*% matrix(bootstrap_results$t0)[-65] 
+
+round(mean((emissions_predictions - y_test)^2), digits = 2)
+```
+
+Bootstrap has an MSEP of 408.9 for the testing set.
+
 <br>
+
+# PLS
+
+```{r}
+set.seed(123)
+pls_reg <- plsr(formula = `Real-World CO2 (g/mi)` ~ . - `Production (000)` -                       `Production Share` - `Real-World CO2 (g/mi)` - 
+                      `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` -
+                      `HP/Engine Displacement` - `HP/Weight (lbs)` - 
+                      `Ton-MPG (Real-World)` - `Average Number of Gears`, data = emissions_train, scale = TRUE, ncomp = 100, validation = "CV")
+summary(pls_reg)
+
+validationplot(pls_reg)
+MSEP(pls_reg, newdata = emissions_test)
+```
+
+We see that 56 components has the lowest MSEP with 404.7 in the testing set.

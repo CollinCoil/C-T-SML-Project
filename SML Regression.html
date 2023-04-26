@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Collin">
+
+<title>SML Regression</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="SML Regression_files/libs/clipboard/clipboard.min.js"></script>
+<script src="SML Regression_files/libs/quarto-html/quarto.js"></script>
+<script src="SML Regression_files/libs/quarto-html/popper.min.js"></script>
+<script src="SML Regression_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="SML Regression_files/libs/quarto-html/anchor.min.js"></script>
+<link href="SML Regression_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="SML Regression_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="SML Regression_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="SML Regression_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="SML Regression_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">SML Regression</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Collin </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell" data-hash="SML-Regression_cache/html/unnamed-chunk-1_2a77f5c1dc2bcebcd02de529e9708550">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pls)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="setup" class="level1">
+<h1>Setup</h1>
+<div class="cell" data-hash="SML-Regression_cache/html/unnamed-chunk-2_14d88e2cef30cd737b851a536a2e5e52">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>carEmissions <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"carEmissions.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 1958 Columns: 54
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (4): Manufacturer, Model Year, Regulatory Class, Vehicle Type
+dbl (50): Production (000), Production Share, 2-Cycle MPG, Real-World MPG, R...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>training_pct <span class="ot">&lt;-</span> <span class="fl">0.75</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(carEmissions), training_pct<span class="sc">*</span><span class="fu">nrow</span>(carEmissions))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create training design matrix</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>emissions_train <span class="ot">&lt;-</span> carEmissions[Z,]</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>reg_train <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span> <span class="sc">~</span> . <span class="sc">-</span> <span class="st">`</span><span class="at">Production (000)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Production Share</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2_City (g/mi)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2_Hwy (g/mi)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">HP/Engine Displacement</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">HP/Weight (lbs)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Ton-MPG (Real-World)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Average Number of Gears</span><span class="st">`</span>, <span class="at">data =</span> emissions_train)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>x_train <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(reg_train)[,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> emissions_train<span class="sc">$</span><span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># create test design matrix and vector</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>emissions_test <span class="ot">&lt;-</span> carEmissions[<span class="sc">-</span>Z,]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>reg_test <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span> <span class="sc">~</span> . <span class="sc">-</span> <span class="st">`</span><span class="at">Production (000)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Production Share</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2_City (g/mi)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2_Hwy (g/mi)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">HP/Engine Displacement</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">HP/Weight (lbs)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Ton-MPG (Real-World)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Average Number of Gears</span><span class="st">`</span>, <span class="at">data =</span> emissions_test) </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>x_test <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(reg_test)[,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>y_test <span class="ot">&lt;-</span> emissions_test<span class="sc">$</span><span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="lasso-regression" class="level1">
+<h1>Lasso Regression</h1>
+<p>Stuff about Lasso Regression</p>
+<div class="cell" data-hash="SML-Regression_cache/html/unnamed-chunk-3_8aeb5a6b90dad6c3728d1fb8f286f1b4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lasso Regression</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>train_lr_cv <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(x_train, y_train, <span class="at">alpha =</span> <span class="dv">1</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>train_lr_cv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:  cv.glmnet(x = x_train, y = y_train, alpha = 1) 
+
+Measure: Mean-Squared Error 
+
+     Lambda Index Measure    SE Nonzero
+min 0.03235    87   312.2 26.24      94
+1se 0.11900    73   337.1 31.09      86</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plots the results of the cross validation on the training data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(train_lr_cv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="SML-Regression_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimating the prediction MSE for Lasso Regression</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pred_test_lr <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(<span class="fu">predict</span>(train_lr_cv, <span class="at">newx =</span> x_test, <span class="at">s =</span> <span class="st">"lambda.1se"</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">predict</span>(train_lr_cv, <span class="at">newx =</span> x_test, <span class="at">s =</span> <span class="st">"lambda.min"</span>))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>pred_test_lr <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+  lambda.1se lambda.min
+       &lt;dbl&gt;      &lt;dbl&gt;
+1       379.       372.
+2       291.       287.
+3       367.       366.
+4       398.       400.
+5       403.       406.
+6       400.       403.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">colMeans</span>((pred_test_lr <span class="sc">-</span> y_test)<span class="sc">^</span><span class="dv">2</span>), <span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>lambda.1se lambda.min 
+    475.44     428.16 </code></pre>
+</div>
+</div>
+<p>Lasso has an MSEP of 475.44.</p>
+<p><br></p>
+</section>
+<section id="bootstrap" class="level1">
+<h1>Bootstrap</h1>
+<p>Stuff about bootstrap</p>
+<div class="cell" data-hash="SML-Regression_cache/html/unnamed-chunk-4_b1dde657d6baf13de901587c84013a80">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>model_bootstrap <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">formula =</span> <span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span> <span class="sc">~</span> . <span class="sc">-</span> <span class="st">`</span><span class="at">Production (000)</span><span class="st">`</span> <span class="sc">-</span>                       <span class="st">`</span><span class="at">Production Share</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span> <span class="sc">-</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                      <span class="st">`</span><span class="at">Real-World CO2_City (g/mi)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2_Hwy (g/mi)</span><span class="st">`</span> <span class="sc">-</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                      <span class="st">`</span><span class="at">HP/Engine Displacement</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">HP/Weight (lbs)</span><span class="st">`</span> <span class="sc">-</span> </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                      <span class="st">`</span><span class="at">Ton-MPG (Real-World)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Average Number of Gears</span><span class="st">`</span>, </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> emissions_train)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>bootstrap_results <span class="ot">&lt;-</span> <span class="fu">Boot</span>(model_bootstrap, <span class="at">R =</span> <span class="dv">99999</span>, <span class="at">ncores =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required namespace: boot</code></pre>
+</div>
+</div>
+<div class="cell" data-hash="SML-Regression_cache/html/unnamed-chunk-5_bc53c5d83c17a68c9cad4e6364ed38db">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Predictions</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>x_test <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(reg_test)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>emissions_predictions <span class="ot">&lt;-</span> x_test[,<span class="sc">-</span><span class="dv">65</span>] <span class="sc">%*%</span> <span class="fu">matrix</span>(bootstrap_results<span class="sc">$</span>t0)[<span class="sc">-</span><span class="dv">65</span>] </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">mean</span>((emissions_predictions <span class="sc">-</span> y_test)<span class="sc">^</span><span class="dv">2</span>), <span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 408.9</code></pre>
+</div>
+</div>
+<p>Bootstrap has an MSEP of 408.9 for the testing set.</p>
+<p><br></p>
+</section>
+<section id="pls" class="level1">
+<h1>PLS</h1>
+<div class="cell" data-hash="SML-Regression_cache/html/unnamed-chunk-6_6b4c3b80c2a7a58a3fd669b61b4f946f">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>pls_reg <span class="ot">&lt;-</span> <span class="fu">plsr</span>(<span class="at">formula =</span> <span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span> <span class="sc">~</span> . <span class="sc">-</span> <span class="st">`</span><span class="at">Production (000)</span><span class="st">`</span> <span class="sc">-</span>                       <span class="st">`</span><span class="at">Production Share</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2 (g/mi)</span><span class="st">`</span> <span class="sc">-</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                      <span class="st">`</span><span class="at">Real-World CO2_City (g/mi)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Real-World CO2_Hwy (g/mi)</span><span class="st">`</span> <span class="sc">-</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                      <span class="st">`</span><span class="at">HP/Engine Displacement</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">HP/Weight (lbs)</span><span class="st">`</span> <span class="sc">-</span> </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                      <span class="st">`</span><span class="at">Ton-MPG (Real-World)</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">Average Number of Gears</span><span class="st">`</span>, <span class="at">data =</span> emissions_train, <span class="at">scale =</span> <span class="cn">TRUE</span>, <span class="at">ncomp =</span> <span class="dv">100</span>, <span class="at">validation =</span> <span class="st">"CV"</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pls_reg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data:   X dimension: 1468 105 
+    Y dimension: 1468 1
+Fit method: kernelpls
+Number of components considered: 100
+
+VALIDATION: RMSEP
+Cross-validated using 10 random segments.
+       (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+CV           101.5    38.83    32.08    28.43    26.53    24.37    22.54
+adjCV        101.5    38.78    32.05    28.33    26.39    24.15    22.36
+       7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+CV       21.55    20.72    20.01     19.43     19.35     18.96     18.89
+adjCV    21.41    20.59    19.85     19.28     19.17     18.83     18.75
+       14 comps  15 comps  16 comps  17 comps  18 comps  19 comps  20 comps
+CV        18.72     18.61      18.6     18.59     18.51     18.43     18.37
+adjCV     18.62     18.52      18.5     18.49     18.41     18.32     18.27
+       21 comps  22 comps  23 comps  24 comps  25 comps  26 comps  27 comps
+CV        18.29     18.22     18.21     18.22     18.16     18.15      18.1
+adjCV     18.19     18.12     18.11     18.11     18.06     18.04      18.0
+       28 comps  29 comps  30 comps  31 comps  32 comps  33 comps  34 comps
+CV        18.05     17.99     17.95     17.92     17.80     17.70     17.61
+adjCV     17.95     17.89     17.85     17.81     17.69     17.59     17.51
+       35 comps  36 comps  37 comps  38 comps  39 comps  40 comps  41 comps
+CV        17.67     17.60     17.56     17.52     17.51     17.55     17.57
+adjCV     17.56     17.51     17.47     17.43     17.42     17.46     17.47
+       42 comps  43 comps  44 comps  45 comps  46 comps  47 comps  48 comps
+CV        17.55     17.53     17.56     17.54     17.49     17.45     17.46
+adjCV     17.46     17.43     17.45     17.44     17.38     17.34     17.35
+       49 comps  50 comps  51 comps  52 comps  53 comps  54 comps  55 comps
+CV        17.47     17.39     17.39      17.4     17.38     17.37     17.35
+adjCV     17.36     17.29     17.29      17.3     17.29     17.27     17.25
+       56 comps  57 comps  58 comps  59 comps  60 comps  61 comps  62 comps
+CV        17.34     17.33     17.33     17.34     17.36     17.36     17.34
+adjCV     17.25     17.24     17.24     17.25     17.26     17.26     17.24
+       63 comps  64 comps  65 comps  66 comps  67 comps  68 comps  69 comps
+CV        17.35     17.35     17.36     17.36     17.34     17.33     17.33
+adjCV     17.25     17.26     17.26     17.26     17.24     17.23     17.24
+       70 comps  71 comps  72 comps  73 comps  74 comps  75 comps  76 comps
+CV        17.33     17.34     17.26     17.29     17.29     17.29     17.29
+adjCV     17.23     17.17     17.15     17.19     17.19     17.19     17.18
+       77 comps  78 comps  79 comps  80 comps  81 comps  82 comps  83 comps
+CV        17.29     17.29     17.29     17.29     17.31     17.54     17.55
+adjCV     17.19     17.19     17.19     17.19     17.21     17.42     17.42
+       84 comps  85 comps  86 comps  87 comps  88 comps  89 comps  90 comps
+CV        17.55     17.55     17.97     18.04     18.04     18.05     18.06
+adjCV     17.42     17.43     17.80     17.87     17.87     17.88     17.89
+       91 comps  92 comps  93 comps  94 comps  95 comps  96 comps  97 comps
+CV        18.19     18.19     18.19     18.19     18.29     18.29     18.29
+adjCV     18.00     18.00     18.00     18.01     18.10     18.10     18.10
+       98 comps  99 comps  100 comps
+CV        18.29     18.29      18.29
+adjCV     18.10     18.10      18.10
+
+TRAINING: % variance explained
+                       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+X                        8.587    15.06    17.92    20.96    22.71    24.08
+Real-World CO2 (g/mi)   85.799    90.47    93.10    94.26    95.47    96.10
+                       7 comps  8 comps  9 comps  10 comps  11 comps  12 comps
+X                        25.62    26.93    28.02     29.24     30.43     31.90
+Real-World CO2 (g/mi)    96.35    96.57    96.82     96.99     97.10     97.15
+                       13 comps  14 comps  15 comps  16 comps  17 comps
+X                         33.16     34.97     36.26     37.50     38.73
+Real-World CO2 (g/mi)     97.19     97.21     97.23     97.24     97.25
+                       18 comps  19 comps  20 comps  21 comps  22 comps
+X                         39.59     40.48     41.40     42.18     42.96
+Real-World CO2 (g/mi)     97.28     97.31     97.33     97.35     97.38
+                       23 comps  24 comps  25 comps  26 comps  27 comps
+X                         43.79     44.57     45.31     46.09     46.96
+Real-World CO2 (g/mi)     97.39     97.40     97.41     97.41     97.42
+                       28 comps  29 comps  30 comps  31 comps  32 comps
+X                         47.78     48.50     49.16     49.80     50.29
+Real-World CO2 (g/mi)     97.43     97.44     97.46     97.48     97.51
+                       33 comps  34 comps  35 comps  36 comps  37 comps
+X                         50.95     51.53     52.22     52.93     53.48
+Real-World CO2 (g/mi)     97.53     97.54     97.55     97.55     97.56
+                       38 comps  39 comps  40 comps  41 comps  42 comps
+X                         54.19     54.66     55.29     55.84     56.39
+Real-World CO2 (g/mi)     97.56     97.57     97.57     97.57     97.58
+                       43 comps  44 comps  45 comps  46 comps  47 comps
+X                         57.13     57.54     58.21     58.63     59.32
+Real-World CO2 (g/mi)     97.58     97.59     97.59     97.60     97.61
+                       48 comps  49 comps  50 comps  51 comps  52 comps
+X                         59.88     60.42     61.03     61.67     62.12
+Real-World CO2 (g/mi)     97.62     97.62     97.62     97.62     97.63
+                       53 comps  54 comps  55 comps  56 comps  57 comps
+X                         62.71     63.18     63.80     64.32     64.78
+Real-World CO2 (g/mi)     97.63     97.63     97.63     97.63     97.63
+                       58 comps  59 comps  60 comps  61 comps  62 comps
+X                         65.61     65.90     66.74     67.20     67.80
+Real-World CO2 (g/mi)     97.63     97.63     97.63     97.64     97.64
+                       63 comps  64 comps  65 comps  66 comps  67 comps
+X                         68.19     68.89     69.66     69.91     70.68
+Real-World CO2 (g/mi)     97.64     97.64     97.64     97.64     97.65
+                       68 comps  69 comps  70 comps  71 comps  72 comps
+X                         70.95     71.90     72.85     72.96     73.81
+Real-World CO2 (g/mi)     97.65     97.65     97.65     97.67     97.68
+                       73 comps  74 comps  75 comps  76 comps  77 comps
+X                         74.74     75.70     76.66     76.82     77.63
+Real-World CO2 (g/mi)     97.68     97.68     97.68     97.68     97.68
+                       78 comps  79 comps  80 comps  81 comps  82 comps
+X                         78.60     79.56     79.58     80.54     81.52
+Real-World CO2 (g/mi)     97.68     97.68     97.68     97.68     97.68
+                       83 comps  84 comps  85 comps  86 comps  87 comps
+X                         82.49     82.50     83.46     84.44     85.41
+Real-World CO2 (g/mi)     97.68     97.68     97.68     97.68     97.68
+                       88 comps  89 comps  90 comps  91 comps  92 comps
+X                         85.44     86.39     87.36     88.33     88.36
+Real-World CO2 (g/mi)     97.68     97.68     97.68     97.68     97.68
+                       93 comps  94 comps  95 comps  96 comps  97 comps
+X                         89.31     90.28     91.25     92.22     93.20
+Real-World CO2 (g/mi)     97.68     97.68     97.68     97.68     97.68
+                       98 comps  99 comps  100 comps
+X                         94.17     95.14      96.12
+Real-World CO2 (g/mi)     97.68     97.68      97.68</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">validationplot</span>(pls_reg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="SML-Regression_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MSEP</span>(pls_reg, <span class="at">newdata =</span> emissions_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)      1 comps      2 comps      3 comps      4 comps      5 comps  
+    12074.6       1727.9       1258.8        935.5        818.1        683.0  
+    6 comps      7 comps      8 comps      9 comps     10 comps     11 comps  
+      681.6        636.4        596.6        532.3        503.0        506.3  
+   12 comps     13 comps     14 comps     15 comps     16 comps     17 comps  
+      506.8        491.7        482.7        476.7        482.5        481.8  
+   18 comps     19 comps     20 comps     21 comps     22 comps     23 comps  
+      474.6        462.9        459.8        455.0        458.2        455.3  
+   24 comps     25 comps     26 comps     27 comps     28 comps     29 comps  
+      460.5        461.7        459.0        459.1        450.3        445.3  
+   30 comps     31 comps     32 comps     33 comps     34 comps     35 comps  
+      443.3        429.2        425.5        424.9        425.7        423.1  
+   36 comps     37 comps     38 comps     39 comps     40 comps     41 comps  
+      424.9        425.1        422.4        422.9        423.5        421.2  
+   42 comps     43 comps     44 comps     45 comps     46 comps     47 comps  
+      420.1        418.0        416.8        411.2        409.1        408.1  
+   48 comps     49 comps     50 comps     51 comps     52 comps     53 comps  
+      408.4        407.9        407.6        406.6        406.8        408.4  
+   54 comps     55 comps     56 comps     57 comps     58 comps     59 comps  
+      406.1        405.2        404.7        404.9        405.0        405.4  
+   60 comps     61 comps     62 comps     63 comps     64 comps     65 comps  
+      405.6        406.2        407.6        407.5        408.7        408.4  
+   66 comps     67 comps     68 comps     69 comps     70 comps     71 comps  
+      407.8        407.7        408.4        408.5        408.8        407.2  
+   72 comps     73 comps     74 comps     75 comps     76 comps     77 comps  
+      408.4        408.3        408.3        408.3        408.9        408.6  
+   78 comps     79 comps     80 comps     81 comps     82 comps     83 comps  
+      408.6        408.6        408.6        408.7        408.7        408.7  
+   84 comps     85 comps     86 comps     87 comps     88 comps     89 comps  
+      408.9        408.9        408.9        409.0        408.9        408.9  
+   90 comps     91 comps     92 comps     93 comps     94 comps     95 comps  
+      408.9        408.9        408.9        408.9        408.9        408.9  
+   96 comps     97 comps     98 comps     99 comps    100 comps  
+      408.9        408.9        408.9        408.9        408.9  </code></pre>
+</div>
+</div>
+<p>We see that 56 components has the lowest MSEP with 404.7 in the testing set.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
