@@ -19,6 +19,8 @@ carEmissions <- carEmissions[which(!startsWith(carEmissions$Manufacturer, 'All')
 carEmissions <- carEmissions[which(!startsWith(carEmissions$`Regulatory Class`, 'All')), ]
 carEmissions <- carEmissions[which(!startsWith(carEmissions$`Vehicle Type`, 'All')), ]
 
+carEmissions <- carEmissions %>% filter(`Real-World CO2 (g/mi)` > 0)
+
 
 ```
 
