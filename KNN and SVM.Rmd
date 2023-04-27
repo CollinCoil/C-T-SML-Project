@@ -1,0 +1,111 @@
+---
+title: "KNN and SVM"
+author: "Thao Huynh"
+date: "2023-04-26"
+output: pdf_document
+---
+
+```{r}
+suppressMessages(library(tidyverse))
+suppressMessages(library(stringr))
+
+carEmissions <- read_csv("table_export.csv", na = "-")
+carEmissions <- replace(carEmissions, is.na(carEmissions), 0)
+
+carEmissions <- carEmissions[which(!startsWith(carEmissions$Manufacturer, 'All')), ] 
+carEmissions <- carEmissions[which(!startsWith(carEmissions$`Regulatory Class`, 'All')), ]
+carEmissions <- carEmissions[which(!startsWith(carEmissions$`Vehicle Type`, 'All')), ]
+
+carEmissions <- carEmissions %>% filter(`Real-World CO2 (g/mi)` > 0)
+
+write.csv(carEmissions, file = "carEmissions.csv")
+
+```
+
+KNN
+```{r}
+suppressMessages(library(tidyverse))
+suppressMessages(library(ggplot2))
+suppressMessages(library(class))
+suppressMessages(library(dplyr))
+# - `Production (000)` - `Production Share` - `Real-World CO2 (g/mi)` - `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` - `HP/Engine Displacement` - `HP/Weight (lbs)` - `Ton-MPG (Real-World)` - `Average Number of Gears`
+
+# Transforming Vehicle Type into Numeric Level
+# 1 : All, 2 : Car SUV, 3 : Minivan/Van, 3 : Pickup, 4 : Sedan/Wagon, 5 : Truck SUV
+carEmissions$'Vehicle Type' <- as.factor(carEmissions$'Vehicle Type')
+carEmissions$`2-Cycle MPG`<- as.numeric(carEmissions$`2-Cycle MPG`)
+
+# Splitting data
+set.seed(1234)
+nrow(carEmissions)
+
+Z <- sample(c(TRUE, FALSE), nrow(carEmissions), replace=TRUE, prob=c(0.75,0.25))
+
+Xtrain = carEmissions[Z,-4] 
+Ytrain = carEmissions$`Vehicle Type`[Z]
+Xtest = carEmissions[-Z,-4] 
+Yhat <- suppressWarnings(knn(train, test, cl, k = 50)) # THIS IS CAUSING THE ERROR
+Ytest <- carEmissions$`Vehicle Type`[-Z,]
+
+# Initialize data
+err_class <- rep(1:100)
+tpr <- rep(1:100)
+fpr <- rep(1:100)
+
+# run the loop
+for (k in 1:100){
+  Yhat <- knn(Xtrain, Xtest, Ytrain, k = k) 
+  err_class[k] <- mean(Yhat != Ytest) # The prediction is not correct
+  tpr[k] <- sum(Yhat == 1 & Ytest == 1) / sum(Ytest == 1) # TP/P
+  fpr[k] <- sum(Yhat == 1 & Ytest == 0) / sum(Ytest == 0) # FP/N
+}
+
+ggplot(tibble(err_class, k = 1:100), aes(x = k, y = err_class)) +
+  geom_line()
+
+# K with lowest error classification
+which.min(err_class) 
+
+# Probability of a Mis-classification
+err_class[which.min(err_class)] 
+
+```
+
+SVM: CLASSIFYING BY MANUFACTURER
+
+```{r}
+suppressMessages(library(e1071))
+suppressMessages(library(tidyverse))
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+
+carEmissions$'Vehicle Type' <- as.factor(carEmissions$'Vehicle Type')
+carEmissions$Manufacturer <- as.factor(carEmissions$Manufacturer)
+carEmissions$`2-Cycle MPG`<- as.numeric(carEmissions$`2-Cycle MPG`)
+
+# SVM Equation
+SVM <- svm(Manufacturer ~ . , data = carEmissions, kernel = "linear")
+
+
+# Coefficient Matrix
+Yhat <- predict(SVM)
+table(Yhat, carEmissions$Manufacturer)
+
+
+# Tuning SVM based on the Kernel
+set.seed(123)
+SVMtuning <- tune(svm, Manufacturer ~ ., data = carEmissions,
+                  ranges = list( kernel = c("linear",
+                                            "polynomial", "radial", "sigmoid")))
+SVMtuning # will provide the kernel providing the best performance
+
+# Classification Error Rate
+1 - SVMtuning$best.performance
+
+# We can look at how kernel each performed in terms of the prediction error rate using
+summary(SVMtuning)
+
+```
+
+
+
