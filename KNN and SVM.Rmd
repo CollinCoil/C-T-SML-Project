@@ -15,30 +15,36 @@ suppressMessages(library(dplyr))
 
 # Transforming Vehicle Type into Numeric Level
 # 1 : All, 2 : Car SUV, 3 : Minivan/Van, 3 : Pickup, 4 : Sedan/Wagon, 5 : Truck SUV
-carEmissions$`Vehicle Type` <- as.factor(carEmissions$`Vehicle Type`)
-carEmissions$Manufacturer <- as.factor(carEmissions$Manufacturer)
-carEmissions$`Model Year` <- as.factor(carEmissions$`Model Year`)
-carEmissions$`Regulatory Class` <- as.factor(carEmissions$`Regulatory Class`)
+carEmissions$`Vehicle Type` <- as.numeric(as.factor(carEmissions$`Vehicle Type`))
+carEmissions$Manufacturer <- as.numeric(as.factor(carEmissions$Manufacturer))
+carEmissions$`Model Year` <- as.numeric(as.factor(carEmissions$`Model Year`))
+carEmissions$`Regulatory Class` <- as.numeric(as.factor(carEmissions$`Regulatory Class`))
 carEmissions$`2-Cycle MPG`<- as.numeric(carEmissions$`2-Cycle MPG`)
 
 carEmissions$Quartile<-cut(carEmissions$`Real-World CO2 (g/mi)`,quantile(carEmissions$`Real-World CO2 (g/mi)`),include.lowest=TRUE,labels=FALSE)
 
-carEmissionsTrimmed <- carEmissions %>% 
-                          select(-`Production (000)`, -`Production Share`, -`Real-World CO2 (g/mi)`,
-                                 -`Real-World CO2_City (g/mi)`, -`Real-World CO2_Hwy (g/mi)`, 
-                                 -`HP/Engine Displacement`, -`HP/Weight (lbs)`, -`Ton-MPG (Real-World)`,
-                                 -`Average Number of Gears`, -`Real-World CO2 (g/mi)`)
+throwaways <- c("Production (000)", "Production Share", "Real-World CO2 (g/mi)",
+                                 "Real-World CO2_City (g/mi)", "Real-World CO2_Hwy (g/mi)", 
+                                 "HP/Engine Displacement", "HP/Weight (lbs)", "Ton-MPG (Real-World)",
+                                 "Average Number of Gears", "Real-World CO2 (g/mi)")
+
+carEmissionsTrimmed <- dplyr::select(carEmissions, -one_of(throwaways))
+carEmissionsTrimmed$`Vehicle Type` <- as.numeric(carEmissions$`Vehicle Type`)
+carEmissionsTrimmed$Manufacturer <- as.numeric(carEmissions$Manufacturer)
+carEmissionsTrimmed$`Model Year` <- as.numeric(carEmissions$`Model Year`)
+carEmissionsTrimmed$`Regulatory Class` <- as.numeric(carEmissions$`Regulatory Class`)
+
 
 # Splitting data
 set.seed(1234)
+training_pct <- 0.75
+Z <- sample(nrow(carEmissionsTrimmed), training_pct*nrow(carEmissionsTrimmed))
 
-Z <- sample(c(TRUE, FALSE), nrow(carEmissions), replace=TRUE, prob=c(0.75,0.25))
-
-Xtrain <-  data.frame(carEmissions[Z,]) 
-Ytrain <-  data.frame(carEmissions$Quartile[Z])
-Xtest <-  carEmissions[-Z,-4] 
-Yhat <- knn(Xtrain, Xtest, Ytrain, k = 25) # THIS IS CAUSING THE ERROR
-Ytest <- carEmissions$Quartile[-Z,]
+Xtrain <-  data.frame(carEmissionsTrimmed[Z,]) 
+Ytrain <-  carEmissionsTrimmed$Quartile[Z]
+Xtest <-  tibble(carEmissionsTrimmed[-Z,])
+Yhat <- knn(Xtrain, Xtest, Ytrain, k = 5, use.all = TRUE) 
+Ytest <- carEmissionsTrimmed$Quartile[-Z]
 
 # Initialize data
 err_class <- rep(1:100)
@@ -47,7 +53,7 @@ fpr <- rep(1:100)
 
 # run the loop
 for (k in 1:100){
-  Yhat <- knn(Xtrain, Xtest, Ytrain, k = k) 
+  Yhat <- knn(Xtrain, Xtest, Ytrain, k = k, use.all = TRUE) 
   err_class[k] <- mean(Yhat != Ytest) # The prediction is not correct
   tpr[k] <- sum(Yhat == 1 & Ytest == 1) / sum(Ytest == 1) # TP/P
   fpr[k] <- sum(Yhat == 1 & Ytest == 0) / sum(Ytest == 0) # FP/N
