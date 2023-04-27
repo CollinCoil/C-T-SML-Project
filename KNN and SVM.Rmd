@@ -21,7 +21,7 @@ carEmissions$`Model Year` <- as.numeric(as.factor(carEmissions$`Model Year`))
 carEmissions$`Regulatory Class` <- as.numeric(as.factor(carEmissions$`Regulatory Class`))
 carEmissions$`2-Cycle MPG`<- as.numeric(carEmissions$`2-Cycle MPG`)
 
-carEmissions$Quartile<-cut(carEmissions$`Real-World CO2 (g/mi)`,quantile(carEmissions$`Real-World CO2 (g/mi)`),include.lowest=TRUE,labels=FALSE)
+carEmissions$Quartile<-as.factor(cut(carEmissions$`Real-World CO2 (g/mi)`,quantile(carEmissions$`Real-World CO2 (g/mi)`),include.lowest=TRUE,labels=FALSE))
 
 throwaways <- c("Production (000)", "Production Share", "Real-World CO2 (g/mi)",
                                  "Real-World CO2_City (g/mi)", "Real-World CO2_Hwy (g/mi)", 
@@ -119,6 +119,32 @@ summary(SVMtuning)
 plot(SVMtuning)
 
 ```
+
+
+
+
+Trees
+```{r}
+library(randomForest)
+set.seed(123)
+carEmissionsTrimmed$`Vehicle Type` <- as.factor(carEmissions$`Vehicle Type`)
+carEmissionsTrimmed$Manufacturer <- as.factor(carEmissions$Manufacturer)
+carEmissionsTrimmed$`Model Year` <- as.factor(carEmissions$`Model Year`)
+carEmissionsTrimmed$`Regulatory Class` <- as.factor(carEmissions$`Regulatory Class`)
+
+BAG <- randomForest(Quartile ~ . - `Model Year`,
+                    data = carEmissionsTrimmed[Z,])
+BAG
+```
+
+
+
+
+
+
+
+
+
 
 
 
