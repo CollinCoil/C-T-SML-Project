@@ -11,6 +11,7 @@ suppressMessages(library(tidyverse))
 suppressMessages(library(ggplot2))
 suppressMessages(library(class))
 suppressMessages(library(dplyr))
+carEmissions <- read_csv("carEmissions.csv")
 # - `Production (000)` - `Production Share` - `Real-World CO2 (g/mi)` - `Real-World CO2_City (g/mi)` - `Real-World CO2_Hwy (g/mi)` - `HP/Engine Displacement` - `HP/Weight (lbs)` - `Ton-MPG (Real-World)` - `Average Number of Gears`
 
 # Transforming Vehicle Type into Numeric Level
@@ -26,7 +27,7 @@ carEmissions$Quartile<-as.factor(cut(carEmissions$`Real-World CO2 (g/mi)`,quanti
 throwaways <- c("Production (000)", "Production Share", "Real-World CO2 (g/mi)",
                                  "Real-World CO2_City (g/mi)", "Real-World CO2_Hwy (g/mi)", 
                                  "HP/Engine Displacement", "HP/Weight (lbs)", "Ton-MPG (Real-World)",
-                                 "Average Number of Gears", "Real-World CO2 (g/mi)")
+                                 "Average Number of Gears")
 
 carEmissionsTrimmed <- dplyr::select(carEmissions, -one_of(throwaways))
 carEmissionsTrimmed$`Vehicle Type` <- as.numeric(carEmissions$`Vehicle Type`)
@@ -125,16 +126,30 @@ plot(SVMtuning)
 
 Trees
 ```{r}
+library(fastDummies)
 library(randomForest)
 set.seed(123)
 carEmissionsTrimmed$`Vehicle Type` <- as.factor(carEmissions$`Vehicle Type`)
 carEmissionsTrimmed$Manufacturer <- as.factor(carEmissions$Manufacturer)
 carEmissionsTrimmed$`Model Year` <- as.factor(carEmissions$`Model Year`)
 carEmissionsTrimmed$`Regulatory Class` <- as.factor(carEmissions$`Regulatory Class`)
+carEmissionsTrimmedDummy <- dummy_cols(carEmissionsTrimmed, c("Vehicle Type", "Manufacturer", "Model Year", "Regulatory Class"), 
+           remove_selected_columns = TRUE)
 
-BAG <- randomForest(Quartile ~ . - `Model Year`,
-                    data = carEmissionsTrimmed[Z,])
-BAG
+Xtrain <-  data.frame(carEmissionsTrimmedDummy[Z,-42]) 
+Ytrain <-  carEmissionsTrimmedDummy$Quartile[Z]
+Xtest <-  data.frame(carEmissionsTrimmedDummy[-Z,-42])
+Ytest <- carEmissionsTrimmedDummy$Quartile[-Z]
+
+
+tuneRF(x = Xtrain, y = Ytrain, mtryStart = 2, ntreeTry = 300)
+RF <- randomForest(x = Xtrain, y = Ytrain, xtest = Xtest, ytest = Ytest, mtry = 64, ntree = 300)
+RF
+plot(RF)
+varImpPlot(RF)
+
+
+
 ```
 
 
