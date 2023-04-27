@@ -49,15 +49,11 @@ Ytest <- carEmissionsTrimmed$Quartile[-Z]
 
 # Initialize data
 err_class <- rep(1:100)
-tpr <- rep(1:100)
-fpr <- rep(1:100)
 
 # run the loop
 for (k in 1:100){
   Yhat <- knn(Xtrain, Xtest, Ytrain, k = k, use.all = TRUE) 
   err_class[k] <- mean(Yhat != Ytest) # The prediction is not correct
-  tpr[k] <- sum(Yhat == 1 & Ytest == 1) / sum(Ytest == 1) # TP/P
-  fpr[k] <- sum(Yhat == 1 & Ytest == 0) / sum(Ytest == 0) # FP/N
 }
 
 ggplot(tibble(err_class, k = 1:100), aes(x = k, y = err_class)) +
